@@ -70,4 +70,39 @@ tools:
       - 1 USD = 0.7891 GBP
       - 1 USD = 151.2345 JPY
       - 1 USD = 1.5234 AUD
-      - 1 USD = 1.3456 CAD 
+      - 1 USD = 1.3456 CAD
+
+  directory_api:
+    name: Directory Listing API
+    description: List directory contents with file filtering
+    base_url: http://localhost:8866
+    endpoint: /api/dir_list
+    method: POST
+    headers:
+      Content-Type: application/json
+    prompt: |
+      Use this tool to list directory contents with optional file filtering.
+      The response will include files and directories with their sizes and modification times.
+      Input should be a JSON object with:
+      - path: The directory path to search in (required)
+      - include_pattern: Optional glob pattern for files to include (e.g., "*.py")
+      - exclude_pattern: Optional glob pattern for files to exclude (e.g., "*.log")
+      Always provide the path parameter, and optionally include or exclude patterns.
+    example: |
+      Question: List all Python files in the src directory, excluding test files
+      Thought: I need to use the Directory Listing API to get a list of Python files, excluding test files.
+      Action: Directory Listing API
+      Action Input: {"path": "src", "include_pattern": "*.py", "exclude_pattern": "*test*.py"}
+      Observation: Found 5 Python files in src directory:
+      - main.py (4KB)
+      - utils.py (2KB)
+      - config.py (1KB)
+      - api.py (8KB)
+      - models.py (3KB)
+      Thought: I now know the final answer.
+      Final Answer: Here are the Python files in the src directory (excluding test files):
+      1. main.py (4KB)
+      2. utils.py (2KB)
+      3. config.py (1KB)
+      4. api.py (8KB)
+      5. models.py (3KB) 

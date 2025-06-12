@@ -16,13 +16,14 @@ import json
 from datetime import datetime
 from typing import Any, Dict, List
 from json import JSONEncoder
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import threading
 import requests
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import time
+import fnmatch
 
 # Constants
 API_PORT = 8866
@@ -56,6 +57,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Mock data generators
+class DirectorySearchParams(BaseModel):
+    """Parameters for directory search"""
+    path: str = Field(..., description="Directory path to search in")
+    include_pattern: str | None = Field(None, description="Glob pattern for files to include (e.g., '*.py')")
+    exclude_pattern: str | None = Field(None, description="Glob pattern for files to exclude (e.g., '*.log')")
+
 class MockDataGenerator:
     """Generates random but realistic mock data for APIs."""
     
@@ -115,6 +122,50 @@ class MockDataGenerator:
         }
         rates[base] = 1.0
         return rates
+    
+    @staticmethod
+    def get_directory_listing(params: DirectorySearchParams) -> List[Dict[str, Any]]:
+        """Generate mock directory listing data"""
+        # Simulate different file types and sizes
+        file_types = ['.py', '.txt', '.log', '.yaml', '.json', '.md']
+        file_sizes = [1024, 2048, 4096, 8192, 16384, 32768]  # 1KB to 32KB
+        
+        # Generate a random number of files and directories
+        num_items = random.randint(5, 15)
+        items = []
+        
+        for _ in range(num_items):
+            is_dir = random.random() < 0.3  # 30% chance of being a directory
+            if is_dir:
+                name = f"dir_{random.randint(1, 100)}"
+                items.append({
+                    "name": name,
+                    "type": "directory",
+                    "size": 0,
+                    "modified": datetime.now().isoformat()
+                })
+            else:
+                ext = random.choice(file_types)
+                name = f"file_{random.randint(1, 100)}{ext}"
+                # Skip if file doesn't match include pattern
+                if params.include_pattern and not fnmatch.fnmatch(name, params.include_pattern):
+                    continue
+                # Skip if file matches exclude pattern
+                if params.exclude_pattern and fnmatch.fnmatch(name, params.exclude_pattern):
+                    continue
+                items.append({
+                    "name": name,
+                    "type": "file",
+                    "size": random.choice(file_sizes),
+                    "modified": datetime.now().isoformat()
+                })
+        
+        return {
+            "path": params.path,
+            "total_items": len(items),
+            "items": items,
+            "timestamp": datetime.now().isoformat()
+        }
 
 # FastAPI server
 app = FastAPI(title="Mock API Server")
@@ -155,13 +206,25 @@ async def root():
             "parameters": {
                 "base": "string (path parameter) - Base currency code (e.g., USD, EUR)"
             }
+        },
+        {
+            "path": "/api/dir_list",
+            "method": "POST",
+            "description": "List directory contents with filtering",
+            "parameters": {
+                "body": {
+                    "path": "string (required) - Directory path to search in",
+                    "include_pattern": "string (optional) - Glob pattern for files to include (e.g., '*.py')",
+                    "exclude_pattern": "string (optional) - Glob pattern for files to exclude (e.g., '*.log')"
+                }
+            }
         }
     ]
     
     return {
         "name": "Mock API Server",
         "version": "1.0.0",
-        "description": "A mock API server providing weather, news, and currency exchange data",
+        "description": "A mock API server providing weather, news, currency exchange, and directory listing data",
         "endpoints": endpoints,
         "base_url": API_BASE_URL
     }
@@ -219,6 +282,25 @@ async def get_exchange_rate(base: str):
         return data
     except Exception as e:
         error_msg = f"Currency API error: {str(e)}"
+        logger.error(error_msg)
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/dir_list")
+async def list_directory(params: DirectorySearchParams):
+    """Mock directory listing API endpoint."""
+    try:
+        # Log the raw API request
+        logger.info(f"Directory API Request - Params: {params.model_dump()}")
+        
+        # Generate mock data
+        data = MockDataGenerator.get_directory_listing(params)
+        
+        # Log the raw API response
+        logger.info(f"Directory API Response - Data: {data}")
+        
+        return data
+    except Exception as e:
+        error_msg = f"Directory API error: {str(e)}"
         logger.error(error_msg)
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -498,6 +580,7 @@ def main():
         print("- GET /api/weather/{location}")
         print("- GET /api/news?query={query}")
         print("- GET /api/exchange/{base}")
+        print("- POST /api/dir_list")
         
         while True:
             try:

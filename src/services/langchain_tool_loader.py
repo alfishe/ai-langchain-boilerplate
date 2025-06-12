@@ -56,12 +56,34 @@ class APITool(BaseTool):
             logging.info(f"REST Tool Call - Params: {params}")
             
             # Make the API request
-            response = requests.request(
-                method=self.method,
-                url=full_url,
-                headers=headers,
-                params=params
-            )
+            if self.method.upper() == 'POST':
+                # For POST requests, try to parse the query as JSON
+                try:
+                    import json
+                    data = json.loads(query)
+                    response = requests.request(
+                        method=self.method,
+                        url=full_url,
+                        headers=headers,
+                        json=data
+                    )
+                except json.JSONDecodeError:
+                    # If query is not valid JSON, send it as form data
+                    response = requests.request(
+                        method=self.method,
+                        url=full_url,
+                        headers=headers,
+                        data=query
+                    )
+            else:
+                # For GET requests, use params
+                response = requests.request(
+                    method=self.method,
+                    url=full_url,
+                    headers=headers,
+                    params=params
+                )
+            
             response.raise_for_status()
             
             # Log the response
