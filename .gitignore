@@ -1,5 +1,6 @@
 **/.idea
 **/.vscode
 
+**/*.log
 **/*.pyc
 **/__pycache__
