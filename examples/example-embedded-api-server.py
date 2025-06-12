@@ -25,13 +25,17 @@ from pydantic import BaseModel, Field
 import time
 import fnmatch
 
-# Constants
-API_PORT = 8866
-API_BASE_URL = f"http://localhost:{API_PORT}"
-
 # Add the project root directory to Python path
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
+
+# Get the absolute path to the config directory
+config_dir = project_root / "examples" / "config"
+config_path = config_dir / "app_config.yaml"
+
+# Constants
+API_PORT = 8866
+API_BASE_URL = f"http://localhost:{API_PORT}"
 
 from src.tools.yaml_tool_source import YAMLToolSource
 from src.services.tool_registry import ToolRegistry
@@ -50,7 +54,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('app.log'),
+        logging.FileHandler(project_root / 'app.log'),
         logging.StreamHandler()
     ]
 )
@@ -435,7 +439,9 @@ def initialize_components(config):
         
         # Set up tools
         logger.info("Setting up tools...")
-        tool_source = YAMLToolSource(config.paths.tool_config)
+        # Convert relative tool config path to absolute path
+        tool_config_path = project_root / config.paths.tool_config
+        tool_source = YAMLToolSource(str(tool_config_path))
         tool_registry = ToolRegistry()
         tool_loader = LangChainToolLoader(tool_source, tool_registry)
         
@@ -448,7 +454,7 @@ def initialize_components(config):
         
         # Load tool configurations for prompts
         logger.info("Loading tool configurations...")
-        with open(config.paths.tool_config, 'r') as f:
+        with open(tool_config_path, 'r') as f:
             tool_configs = yaml.safe_load(f)
         
         # Build tool-specific prompts
@@ -556,8 +562,7 @@ def main():
         # Load configuration
         logger.info("Loading configuration...")
         print("Loading configuration...")
-        config_path = "examples/config/app_config.yaml"
-        config = ConfigLoader(config_path).get_config()
+        config = ConfigLoader(str(config_path)).get_config()
         
         # Initialize components
         logger.info("Initializing LangChain components...")

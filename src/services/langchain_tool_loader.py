@@ -57,9 +57,9 @@ class APITool(BaseTool):
             
             # Make the API request
             if self.method.upper() == 'POST':
-                # For POST requests, try to parse the query as JSON
+                # For POST requests, parse the query as JSON
+                import json
                 try:
-                    import json
                     data = json.loads(query)
                     response = requests.request(
                         method=self.method,
@@ -67,14 +67,9 @@ class APITool(BaseTool):
                         headers=headers,
                         json=data
                     )
-                except json.JSONDecodeError:
-                    # If query is not valid JSON, send it as form data
-                    response = requests.request(
-                        method=self.method,
-                        url=full_url,
-                        headers=headers,
-                        data=query
-                    )
+                except json.JSONDecodeError as e:
+                    logging.error(f"Invalid JSON in query: {str(e)}")
+                    return f"Error: Invalid JSON format in query: {str(e)}"
             else:
                 # For GET requests, use params
                 response = requests.request(
