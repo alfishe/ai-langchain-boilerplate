@@ -1,0 +1,148 @@
+Metadata-Version: 2.1
+Name: ai-langchain-tools
+Version: 0.1.0
+Summary: A collection of tools and services for working with LangChain
+Home-page: https://github.com/yourusername/ai-langchain-tools
+Author: Your Name
+Author-email: your.email@example.com
+Keywords: langchain,ai,tools,llm,ollama
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: langchain>=0.1.0
+Requires-Dist: langchain-community>=0.0.10
+Requires-Dist: langchain-ollama>=0.0.1
+Requires-Dist: pyyaml>=6.0.1
+Requires-Dist: requests>=2.31.0
+Requires-Dist: pydantic>=2.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: isort>=5.0.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: sphinx>=7.0.0; extra == "docs"
+Requires-Dist: sphinx-rtd-theme>=1.0.0; extra == "docs"
+Requires-Dist: myst-parser>=2.0.0; extra == "docs"
+
+# AI LangChain Tools
+
+A flexible and extensible framework for managing and using tools with LangChain agents. This project provides a structured way to define, load, and use external tools (like API integrations) with LangChain agents.
+
+## Features
+
+- YAML-based tool configuration
+- Tool registry for managing tool configurations
+- Automatic conversion of tool configurations to LangChain tools
+- Support for REST API tools with automatic request handling
+- Ollama integration for local LLM support
+- Extensible architecture for adding new tool types
+
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/ai-langchain-tools.git
+cd ai-langchain-tools
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install the package in development mode
+pip install -e .
+```
+
+## Quick Start
+
+1. Configure your tools in YAML:
+```yaml
+tools:
+  weather:
+    name: "Weather API"
+    description: "Get current weather information for a location"
+    endpoint: "https://api.weatherapi.com/v1/current.json"
+    method: "GET"
+    headers:
+      Authorization: "Bearer ${WEATHER_API_KEY}"
+    params:
+      key: "${WEATHER_API_KEY}"
+      q: "${query}"
+```
+
+2. Set up your environment variables:
+```bash
+export WEATHER_API_KEY="your_api_key"
+```
+
+3. Run the example:
+```bash
+python examples/rest_api_tools.py
+```
+
+## Project Structure
+
+```
+ai-langchain-tools/
+├── src/
+│   ├── config/         # Configuration management
+│   ├── services/       # Core services
+│   └── tools/          # Tool implementations
+├── examples/           # Example scripts
+│   └── config/         # Example configurations
+├── tests/             # Test suite
+├── requirements.txt   # Project dependencies
+└── setup.py          # Package setup
+```
+
+## Components
+
+### Tool Registry
+Manages tool configurations and provides a central registry for tool management.
+
+### LangChain Tool Loader
+Converts tool configurations into LangChain tools and handles the integration with LangChain agents.
+
+### YAML Tool Source
+Loads tool configurations from YAML files with support for environment variable substitution.
+
+## Configuration
+
+The project uses YAML for configuration. See `examples/config/` for example configurations:
+
+- `app_config.yaml`: Application settings
+- `api_tools.yaml`: Tool definitions
+
+## Development
+
+### Adding New Tools
+
+1. Define your tool configuration in YAML
+2. Implement any necessary tool-specific logic
+3. Register the tool in the registry
+
+### Running Tests
+
+```bash
+pytest tests/
+```
+
+## License
+
+MIT License
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request 

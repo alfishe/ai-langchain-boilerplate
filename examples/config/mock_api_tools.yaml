@@ -1,0 +1,73 @@
+tools:
+  weather_api:
+    name: Weather API
+    description: Get current weather information for a location
+    base_url: http://localhost:8866
+    endpoint: /api/weather/{location}
+    method: GET
+    prompt: |
+      Use this tool to get current weather information for any location.
+      The response will include temperature, conditions, humidity, and wind speed.
+      Always use the location name as the input.
+    example: |
+      Question: What's the weather like in London?
+      Thought: I need to use the Weather API to get current weather information for London.
+      Action: Weather API
+      Action Input: London
+      Observation: The current temperature in London is 18°C with partly cloudy conditions, 65% humidity, and 12 km/h wind speed.
+      Thought: I now know the final answer.
+      Final Answer: The current weather in London is 18°C with partly cloudy conditions, 65% humidity, and 12 km/h wind speed.
+
+  news_api:
+    name: News API
+    description: Get latest news articles for a topic
+    base_url: http://localhost:8866
+    endpoint: /api/news
+    method: GET
+    prompt: |
+      Use this tool to get the latest news articles for any topic.
+      The response will include article titles, sources, categories, and publication dates.
+      Use ONLY the topic or keywords as the input (e.g., "technology", "sports", "politics").
+      DO NOT include URLs, API keys, or any other parameters in the input.
+    example: |
+      Question: What's the latest news about technology?
+      Thought: I need to use the News API to get the latest news about technology.
+      Action: News API
+      Action Input: technology
+      Observation: Found 5 articles about technology, including "New AI breakthrough" from Tech News and "Latest smartphone release" from Tech Daily.
+      Thought: I now know the final answer.
+      Final Answer: Here are the latest technology news articles:
+      1. "New AI breakthrough" (Tech News)
+      2. "Latest smartphone release" (Tech Daily)
+      3. "Cloud computing trends" (Tech Review)
+      4. "Cybersecurity update" (Tech Times)
+      5. "Future of AI" (Tech World)
+
+  currency_api:
+    name: Currency Exchange API
+    description: Get current exchange rates for a base currency
+    base_url: http://localhost:8866
+    endpoint: /api/exchange/{base}
+    method: GET
+    prompt: |
+      Use this tool to get current exchange rates for any base currency.
+      The response will include rates for major currencies like USD, EUR, GBP, etc.
+      Use the three-letter currency code as the input (e.g., USD, EUR, GBP).
+    example: |
+      Question: What are the current exchange rates for USD?
+      Thought: I need to use the Currency Exchange API to get current exchange rates for USD.
+      Action: Currency Exchange API
+      Action Input: USD
+      Observation: Current exchange rates for USD:
+      EUR: 0.9234
+      GBP: 0.7891
+      JPY: 151.2345
+      AUD: 1.5234
+      CAD: 1.3456
+      Thought: I now know the final answer.
+      Final Answer: Here are the current exchange rates for USD:
+      - 1 USD = 0.9234 EUR
+      - 1 USD = 0.7891 GBP
+      - 1 USD = 151.2345 JPY
+      - 1 USD = 1.5234 AUD
+      - 1 USD = 1.3456 CAD 

@@ -1,0 +1,102 @@
+# Application Configuration
+
+# File Paths
+paths:
+  tool_config: "examples/config/mock_api_tools.yaml"  # Path to tool configurations
+  log_file: "app.log"  # Path to log file
+
+# Ollama Configuration
+ollama:
+  model: "mistral"  # Model to use
+  temperature: 0.7  # Temperature for generation
+  base_url: "http://localhost:11434"  # Ollama API base URL
+
+# Agent Configuration
+agent:
+  type: "zero-shot-react-description"
+  verbose: true
+  max_iterations: 5
+  handle_parsing_errors: true
+  system_prompt: |
+    You are a helpful AI assistant that can use tools to answer questions. You have access to the following tools:
+
+    {tools}
+
+    CRITICAL FORMAT RULES:
+    1. NEVER combine an action with a final answer in the same response
+    2. ALWAYS complete the full Thought/Action/Action Input/Observation cycle before giving a final answer
+    3. ONLY give a final answer after you have received and processed the observation
+    4. If you need to use a tool, do NOT include a final answer in the same response
+    5. Each response must be EXACTLY one of these:
+       - A complete Thought/Action/Action Input sequence (for using a tool)
+       - A complete Thought/Final Answer sequence (for giving the final answer)
+    6. NEVER include "(Waiting for observation)" or "(After receiving the correct observation)" in your responses
+    7. NEVER include any text after the Action Input or Final Answer
+    8. NEVER include an Observation in your response - wait for the actual observation from the tool
+    9. NEVER include multiple actions or final answers in a single response
+
+    Here is the EXACT format you must follow:
+
+    For using a tool:
+    Question: the input question you must answer
+    Thought: think about what to do
+    Action: the action to take, should be one of [{tool_names}]
+    Action Input: the input to the action
+
+    For giving the final answer:
+    Question: the input question you must answer
+    Thought: I now know the final answer
+    Final Answer: the final answer to the original input question
+
+    INCORRECT RESPONSES (DO NOT DO THIS):
+    ❌ Thought: I need to use the News API
+       Action: News API
+       Action Input: latest
+       (Waiting for observation)  <- WRONG: Don't include this
+       Final Answer: Here are the news...  <- WRONG: Don't combine with action
+
+    ❌ Thought: I need to use the Weather API
+       Action: Weather API
+       Action Input: London
+       Observation: The weather is...  <- WRONG: Don't include observation
+       Final Answer: The weather is...  <- WRONG: Don't combine with action
+
+    CORRECT RESPONSES (DO THIS):
+    ✅ For using a tool:
+       Question: What's the weather in London?
+       Thought: I need to use the Weather API to get the current weather
+       Action: Weather API
+       Action Input: London
+
+    ✅ For giving the final answer:
+       Question: What's the weather in London?
+       Thought: I now know the final answer
+       Final Answer: The current weather in London is 18°C with partly cloudy conditions
+
+    Tool-specific instructions:
+    {tool_prompts}
+
+    Begin!
+
+# Tool Configuration
+tools:
+  default_timeout: 30  # Default timeout for API requests
+  retry_attempts: 3    # Number of retry attempts for failed requests
+  retry_delay: 1       # Delay between retries in seconds
+
+# Logging Settings
+logging:
+  level: "INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# API Rate Limiting
+rate_limiting:
+  enabled: true
+  requests_per_minute: 60
+  burst_limit: 10
+
+# Response Formatting
+response_formatting:
+  date_format: "%Y-%m-%d %H:%M:%S"
+  number_format: "{:.2f}"  # Format for numeric values
+  max_items_in_list: 5  # Maximum items to show in list responses 
