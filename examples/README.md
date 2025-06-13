@@ -1,7 +1,7 @@
 # REST API Tools Example
 
 This example demonstrates how to use REST API tools with LangChain. It shows how to:
-1. Run a mock API server for weather, news, and currency data
+1. Run a mock API server for weather, news, currency data, and directory listing
 2. Load API tool configurations from YAML
 3. Convert them to LangChain tools
 4. Use them with a LangChain agent powered by Ollama
@@ -14,6 +14,7 @@ This example demonstrates how to use REST API tools with LangChain. It shows how
 │ - Weather API        │
 │ - News API           │
 │ - Currency API       │
+│ - Directory API      │
 └──────────────────────┘
            │
            ▼
@@ -30,6 +31,7 @@ This example demonstrates how to use REST API tools with LangChain. It shows how
 │ - Weather Tool        │
 │ - News Tool           │
 │ - Currency Tool       │
+│ - Directory Tool      │
 └───────────────────────┘
            │
            ▼
@@ -72,6 +74,42 @@ This example demonstrates how to use REST API tools with LangChain. It shows how
 - **Functionality**: Get currency exchange rates
 - **Example Query**: "What's the exchange rate between USD and EUR?"
 - **Response Format**: Exchange rates for various currencies relative to the base currency
+
+### 4. Directory Listing Tool
+- **Endpoint**: `/api/dir_list`
+- **Method**: POST
+- **Functionality**: List directory contents with optional file filtering
+- **Example Query**: "Show me the contents of /home/user"
+- **Request Format**:
+  ```json
+  {
+    "path": "/home/user",
+    "include_pattern": "*.py",  // Optional
+    "exclude_pattern": "*.log"  // Optional
+  }
+  ```
+- **Response Format**:
+  ```json
+  {
+    "path": "/home/user",
+    "total_items": 5,
+    "items": [
+      {
+        "name": "example.py",
+        "type": "file",
+        "size": 4096,
+        "modified": "2025-06-12T13:43:52.300101"
+      },
+      {
+        "name": "docs",
+        "type": "directory",
+        "size": 0,
+        "modified": "2025-06-12T13:43:52.300101"
+      }
+    ],
+    "timestamp": "2025-06-12T13:43:52.300101"
+  }
+  ```
 
 ## Prerequisites
 
@@ -141,6 +179,11 @@ The mock API server is running at http://localhost:8866
 
 You: What's the weather in San Francisco?
 Assistant: The current weather in San Francisco (SFO) is snowy with a temperature of 10°C, 48% humidity, and wind speed of 13 km/h.
+
+You: Show me the contents of /home/user
+Assistant: Here are the contents of /home/user:
+1. example.py (4KB) - Modified on June 12, 2025 at 13:43:52
+2. docs (directory) - Last modified on June 12, 2025 at 13:43:52
 ```
 
 ## Troubleshooting
